@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcc31f87bc5a4eacb1acbcfc831723bd, type: 3}
+  m_Name: GameData
+  m_EditorClassIdentifier: 
+  units:
+  - {fileID: 11400000, guid: a961b75ec9e614025950cb0969e02a0e, type: 2}
+  - {fileID: 11400000, guid: e25b44cfe0274494dafee82e87a2b6d7, type: 2}
+  weapons:
+  - {fileID: 11400000, guid: 662a6e41b5da04ef1a8171c93578b1f3, type: 2}
+  - {fileID: 11400000, guid: 94732086354dd40a986130cb771b7493, type: 2}
+  - {fileID: 11400000, guid: 26a4fbcc620804543a080c49eb8bc0b2, type: 2}
+  modules:
+  - {fileID: 11400000, guid: c957f3f7f6e5742eea71cb96c0d7e46d, type: 2}
+  - {fileID: 11400000, guid: 38f0789011bd34e31ae3b24b4abe7459, type: 2}
+  - {fileID: 11400000, guid: c8c7bb618ea54496b9394212cf63743f, type: 2}
+  - {fileID: 11400000, guid: d332abc2739894005b9a31c7a9e2b1c5, type: 2}
+  unitPrefabs:
+  - id: ShipA
+    prefab: {fileID: 4835817862605824879, guid: d6e018ae7ac63456bbcb9331dc1e72c3, type: 3}
+  - id: ShipB
+    prefab: {fileID: 727758099282201191, guid: 03e3b296cb070489693792f8a529b0b5, type: 3}
+  weaponPrefabs:
+  - id: WeaponA
+    prefab: {fileID: 8467427135101754573, guid: 147f98eac9e654f9cbda23d9a49d722e, type: 3}
+  - id: WeaponB
+    prefab: {fileID: 1320008625030027599, guid: 582f36d6a029041d89d0464f4287258d, type: 3}
+  - id: WeaponC
+    prefab: {fileID: 4746670480660625591, guid: d3a585434c8ca4373833b232abae237e, type: 3}
+  modulePrefabs:
+  - id: ModuleA
+    prefab: {fileID: 3618407886599861559, guid: 9b0829b9f15a1464ea44c20c2d36c0dd, type: 3}
+  - id: ModuleB
+    prefab: {fileID: 2257288572196982050, guid: ae17034d4f93e42828179cd67d56cf7c, type: 3}
+  - id: ModuleC
+    prefab: {fileID: 5914168466116367142, guid: 1adcf7004deaa4b9e9fc034e907bb81c, type: 3}
+  - id: ModuleD
+    prefab: {fileID: 5759832255268684750, guid: 5bbd805c096ad42549ec4e39eecf1a54, type: 3}
+  bulletPrefabs:
+  - id: BulletA
+    prefab: {fileID: 1201776503788207061, guid: 6a68610dd9e0649729293bf477eea3e7, type: 3}
+  - id: BulletB
+    prefab: {fileID: -3242443238254023108, guid: 0259d3220109f43aa80d758bdfbb5510, type: 3}
+  - id: BulletC
+    prefab: {fileID: -7993892410249103346, guid: 2f920a9e2092c4f089b813dae9d20324, type: 3}
