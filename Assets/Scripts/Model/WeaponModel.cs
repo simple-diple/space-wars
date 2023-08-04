@@ -7,33 +7,29 @@ namespace Model
 {
     public class WeaponModel
     {
-
+        private float ReloadTime => _reloadTime * (1 + _unitModel.GetEffect(BuffEffect.ReloadTime));
         private readonly WeaponView _view;
-        private float _reloadTime;
+        private readonly float _reloadTime;
         private bool _isFire;
         private readonly float _force;
-        private readonly int _player;
         private readonly string _name;
         private readonly int _damage;
+        private readonly UnitModel _unitModel;
+        private Coroutine _coroutine;
         
-        public WeaponModel(WeaponView view, WeaponData data, int player)
+        public WeaponModel(WeaponView view, WeaponData data, UnitModel unitModel)
         {
             _view = view;
             _reloadTime = data.reloadTime;
             _force = data.force;
-            _player = player;
+            _unitModel = unitModel;
             _name = data.weaponName;
             _damage = data.damage;
         }
 
-        public void UpgradeReload(float value)
-        {
-            _reloadTime *= 1 + value;
-        }
-
         public void Fire()
         {
-            _view.StartCoroutine(StartFire());
+            _coroutine = _view.StartCoroutine(StartFire());
         }
 
         private IEnumerator StartFire()
@@ -47,8 +43,8 @@ namespace Model
 
             while (_isFire)
             {
-                yield return new WaitForSeconds(_reloadTime);
-                _view.Fire(_force, _player, _damage);
+                yield return new WaitForSeconds(ReloadTime);
+                _view.Fire(_force, _unitModel.Player, _damage);
             }
             
         }
@@ -56,11 +52,16 @@ namespace Model
         public void StopFire()
         {
             _isFire = false;
+
+            if (_coroutine != null)
+            {
+                _view.StopCoroutine(_coroutine);
+            }
         }
 
         public override string ToString()
         {
-            return _name + "(D:" + _damage + " R:" + _reloadTime + ")";
+            return _name + "(D:" + _damage + " R:" + ReloadTime + ")";
         }
     }
 }

@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3840e35970074536b1ef5e974bf16ed6, type: 3}
-  m_Name: ReloadBuff
+  m_Script: {fileID: 11500000, guid: cc6e91cc6dc941c7918b4ecd788b8697, type: 3}
+  m_Name: ShieldRecovery
   m_EditorClassIdentifier: 
-  buffName: '{0} Reload time'
-  value: -0.2
+  buffName: '{0} Sheld recovery'
+  buffEffect: 2
+  value: 0.2

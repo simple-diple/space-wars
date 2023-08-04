@@ -7,17 +7,13 @@ namespace View
 {
     public class UnitView : GameObjectView
     {
-        public UnitModel UnitModel => _unitModel;
-        
+
         [SerializeField] public List<WeaponSlotView> weaponSlots;
         [SerializeField] public List<ModuleSlotView> moduleSlots;
         [SerializeField] public ShieldView shieldView;
 
-        private UnitModel _unitModel;
-
         public void Connect(UnitModel unitModel)
         {
-            _unitModel = unitModel;
             var colliders = gameObject.GetComponentsInChildren<Collider>();
 
             foreach (Collider c in colliders)

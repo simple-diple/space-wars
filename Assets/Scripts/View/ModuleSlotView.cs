@@ -15,5 +15,10 @@ namespace View
         {
             UISetSlot.ModuleSlotClick(this);
         }
+
+        public void DisposeModule()
+        {
+            Destroy(moduleView.gameObject);
+        }
     }
 }

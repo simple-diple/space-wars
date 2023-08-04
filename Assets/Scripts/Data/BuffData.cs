@@ -1,15 +1,12 @@
-using System;
-using Model;
 using UnityEngine;
 
 namespace Data
 {
-    [Serializable]
-    public abstract class BuffData : ScriptableObject
+    [CreateAssetMenu(menuName = "Create Buff", fileName = "Buff", order = 0)]
+    public class BuffData : ScriptableObject
     {
         public string buffName;
+        public BuffEffect buffEffect;
         public float value;
-        public abstract void Connect(UnitModel unitModel);
-        public abstract void Disconnect(UnitModel unitModel);
     }
 }

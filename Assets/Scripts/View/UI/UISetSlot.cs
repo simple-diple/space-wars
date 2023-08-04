@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Controller;
 using Data;
 using TMPro;
 using UnityEngine;
@@ -10,33 +11,33 @@ namespace View.UI
         [SerializeField] private Camera cam;
         [SerializeField] private TMP_Dropdown weaponsDropDown;
         [SerializeField] private TMP_Dropdown modulesDropDown;
-        [SerializeField] private GameView gameView;
+        [SerializeField] private GameController gameController;
 
         private static UISetSlot instance;
-        private List<ModuleData> _moduleDatas;
-        private List<WeaponData> _weaponDatas;
+        private List<ModuleData> _modules;
+        private List<WeaponData> _weapons;
         private GameObjectView _currentSlot;
 
         private void Awake()
         {
             instance = this;
 
-            _moduleDatas = gameView.GameData.GetModules();
-            _weaponDatas = gameView.GameData.GetWeapons();
+            _modules = gameController.GameData.GetModules();
+            _weapons = gameController.GameData.GetWeapons();
             
             modulesDropDown.options.Add(new TMP_Dropdown.OptionData() { text = "Chose module:" });
             weaponsDropDown.options.Add(new TMP_Dropdown.OptionData() { text = "Chose weapon:" });
             modulesDropDown.options.Add(new TMP_Dropdown.OptionData() { text = "Empty" });
             weaponsDropDown.options.Add(new TMP_Dropdown.OptionData() { text = "Empty" });
             
-            foreach (ModuleData moduleData in _moduleDatas)
+            foreach (ModuleData moduleData in _modules)
             {
                 var optionData = new TMP_Dropdown.OptionData();
                 optionData.text = moduleData.ToString();
                 modulesDropDown.options.Add(optionData);
             }
             
-            foreach (WeaponData moduleData in _weaponDatas)
+            foreach (WeaponData moduleData in _weapons)
             {
                 var optionData = new TMP_Dropdown.OptionData();
                 optionData.text = moduleData.ToString();
@@ -54,7 +55,7 @@ namespace View.UI
                 return;
             }
             
-            ModuleData moduleData = index > 1 ? _moduleDatas[index - 2] : null;
+            ModuleData moduleData = index > 1 ? _modules[index - 2] : null;
             var slot = (ModuleSlotView)_currentSlot;
             slot.unitModel.ConnectSlot(moduleData, slot.slotIndex);
             modulesDropDown.gameObject.SetActive(false);
@@ -69,7 +70,7 @@ namespace View.UI
                 return;
             }
             
-            WeaponData moduleData = index > 1 ? _weaponDatas[index - 2] : null;
+            WeaponData moduleData = index > 1 ? _weapons[index - 2] : null;
             var slot = (WeaponSlotView)_currentSlot;
             slot.unitModel.ConnectSlot(moduleData, slot.slotIndex);
             weaponsDropDown.gameObject.SetActive(false);
@@ -94,7 +95,6 @@ namespace View.UI
                 return;
             }
             
-            Debug.Log(view.unitModel + ":" + view.slotIndex);
             _currentSlot = view;
             modulesDropDown.gameObject.SetActive(false);
             Vector2 screenPoint = cam.WorldToScreenPoint(view.transform.position);
@@ -109,7 +109,6 @@ namespace View.UI
                 return;
             }
             
-            Debug.Log(view.unitModel + ":" + view.slotIndex);
             _currentSlot = view;
             weaponsDropDown.gameObject.SetActive(false);
             Vector2 screenPoint = cam.WorldToScreenPoint(view.transform.position);

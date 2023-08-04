@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebce7faf3de2471092e5921c9550cdec, type: 3}
-  m_Name: ShieldRecoverBuff
+  m_Script: {fileID: 11500000, guid: cc6e91cc6dc941c7918b4ecd788b8697, type: 3}
+  m_Name: ShieldEnergy
   m_EditorClassIdentifier: 
-  buffName: '{0} Shield Recovery'
-  value: 0.2
+  buffName: '{0} Shield energy'
+  buffEffect: 1
+  value: 50

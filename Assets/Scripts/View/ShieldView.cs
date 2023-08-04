@@ -10,53 +10,36 @@ namespace View
         public float effectSpeed;
         public Renderer render;
         private Material _material;
-        private bool _isDamageEffect;
+        private Coroutine _coroutine;
 
         private void Awake()
         {
             _material = render.material;
         }
+        
+        public void SetCollider(bool value)
+        {
+            sphereCollider.enabled = value;
+        }
 
         public void ShowDamageEffect()
         {
-            StartCoroutine(ShieldEffect(Color.red));
+            ShowEffect(new Color(1f, 0.0f, 0.0f, _material.color.a));
         }
 
         public void ShowRecoveryEffect()
         {
-            StartCoroutine(ShieldEffect(Color.cyan));
+            ShowEffect(new Color(0.0f, 1f, 1f, _material.color.a));
         }
-
-        private IEnumerator ShieldEffect(Color effectColor)
+        
+        private void ShowEffect(Color color)
         {
-            if (_isDamageEffect)
-            {
-                yield break;
-            }
-
-            _material.color = effectColor;
-            Color color = _material.color;
-            color.a = 0;
             _material.color = color;
-            _isDamageEffect = true;
-            
-            while (_material.color.a < 0.3f)
+            if (_coroutine != null)
             {
-                color = _material.color;
-                color.a += Time.deltaTime * effectSpeed;
-                _material.color = color;
-                yield return null;
+                StopCoroutine(_coroutine);
             }
-            
-            while (_material.color.a >= 0)
-            {
-                color = _material.color;
-                color.a -= Time.deltaTime * effectSpeed;
-                _material.color = color;
-                yield return null;
-            }
-
-            _isDamageEffect = false;
+            _coroutine = StartCoroutine(ShieldEffect());
         }
 
         public void SetActive(bool value)
@@ -64,9 +47,24 @@ namespace View
             render.enabled = value;
         }
 
-        public void SetCollider(bool value)
+        private IEnumerator ShieldEffect()
         {
-            sphereCollider.enabled = value;
+            float alpha = 0;
+            _material.color = new Color(_material.color.r, _material.color.g, _material.color.b, alpha);
+            
+            while (_material.color.a < effectAlpha)
+            {
+                alpha += Time.deltaTime * effectSpeed;
+                _material.color = new Color(_material.color.r, _material.color.g, _material.color.b, alpha);
+                yield return null;
+            }
+            
+            while (_material.color.a >= 0)
+            {
+                alpha -= Time.deltaTime * effectSpeed;
+                _material.color = new Color(_material.color.r, _material.color.g, _material.color.b, alpha);
+                yield return null;
+            }
         }
     }
 }

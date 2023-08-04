@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Data;
 using UnityEngine;
 using View;
@@ -10,76 +9,72 @@ namespace Model
 {
     public class UnitModel
     {
-        public int Player => _player;
+        public int Player { get; }
+
         public float ShieldEnergy => _shieldModel.Energy;
         public float ShieldRecovery => _shieldModel.Recovery;
         public float Health
         {
-            get => _health;
+            get => _health + GetEffect(BuffEffect.Health);
             private set => SetHealth(value);
         }
-
-        public bool IsAlive => _health > 0;
-        public List<WeaponModel> Weapons => _weaponModels.Values.ToList();
-        public List<ModuleModel> Modules => _moduleModels.Values.ToList();
+        public bool IsAlive => Health > 0;
+        public Dictionary<int, WeaponModel> Weapons => _weaponModels;
+        public Dictionary<int, ModuleModel> Modules => _moduleModels;
 
         private readonly UnitView _view;
         private float _health;
-        
         private readonly Dictionary<int, WeaponModel> _weaponModels;
         private readonly Dictionary<int, ModuleModel> _moduleModels;
         private readonly ShieldModel _shieldModel;
-        private readonly int _player;
-        private float _maxHealth;
+        private readonly float _maxHealth;
         private readonly GameData _gameData;
-        
+        private readonly Dictionary<int, List<Tuple<BuffEffect, float>>> _modulesEffects;
+        private Dictionary<BuffEffect, float> _allEffects;
+
         public event Action<UnitModel> OnDie;
         public event Action<UnitModel> OnStatsChange;
-        public UnitModel(UnitView view, UnitData unitData, int player, GameData gameData)
+
+        public UnitModel(UnitData unitData, Transform spawnPoint, int player, GameData gameData)
         {
-            _view = view;
-            _maxHealth = unitData.health;
-            _health = unitData.health;
-            _player = player;
             _gameData = gameData;
-
-            _shieldModel = new ShieldModel(this, view.shieldView, unitData.shield);
-            _shieldModel.OnEnergyChanged += OnShieldEnergyChanged;
-
-            _weaponModels = new Dictionary<int, WeaponModel>(unitData.weapons.Length);
-            for (var i = 0; i < unitData.weapons.Length; i++)
+            
+            var (success, reason) = Validate(unitData);
+            if (success == false)
             {
-                WeaponData weaponData = unitData.weapons[i];
-                WeaponView weaponView = view.weaponSlots[i].weaponView;
-                if (weaponView)
-                {
-                    _weaponModels.Add(i, new WeaponModel(weaponView, weaponData, _player));
-                }
+                throw new Exception($"Can not spawn unit {unitData.id}! {reason}");
             }
 
+            var prefab = gameData.GetPrefab<UnitView>(unitData.id);
+            _view = Object.Instantiate(prefab, spawnPoint, true);
+            Transform transform = _view.transform;
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+
+            _maxHealth = unitData.health;
+            _health = unitData.health;
+            Player = player;
+            _shieldModel = new ShieldModel(this, _view.shieldView, unitData.shield);
+            _shieldModel.OnEnergyChanged += OnShieldEnergyChanged;
+            _weaponModels = new Dictionary<int, WeaponModel>(unitData.weapons.Length);
             _moduleModels = new Dictionary<int, ModuleModel>(unitData.modules.Length);
+            _modulesEffects = new Dictionary<int, List<Tuple<BuffEffect, float>>>(unitData.modules.Length);
+            _allEffects = CreateEmptyEffects();
+
+            for (var i = 0; i < unitData.weapons.Length; i++)
+            {
+                ConnectSlot(unitData.weapons[i], i);
+            }
+            
             for (var i = 0; i < unitData.modules.Length; i++)
             {
-                ModuleData moduleData = unitData.modules[i];
-                ModuleView moduleView = view.moduleSlots[i].moduleView;
-                
-                if (moduleData != null)
-                {
-                    ModuleModel moduleModel = new ModuleModel(moduleView, moduleData);
-                    moduleModel.Connect(this);
-                    _moduleModels.Add(i, moduleModel);
-                }
+                ConnectSlot(unitData.modules[i], i);
             }
 
             _view.Connect(this);
             
         }
-
-        private void OnShieldEnergyChanged()
-        {
-            OnStatsChange?.Invoke(this);
-        }
-
+        
         public void GetDamage(int value)
         {
             Debug.Log("Get damage " + value);
@@ -94,37 +89,9 @@ namespace Model
             Health -= value - _shieldModel.Energy;
             _shieldModel.Energy = 0;
             _view.ShowDamage();
+            OnStatsChange?.Invoke(this);
         }
-
-        public void GiveHealth(float value)
-        {
-            _maxHealth += (int)value;
-            _health += (int)value;
-        }
-
-        public void UpgradeReload(float value)
-        {
-            foreach (WeaponModel weaponModel in _weaponModels.Values)
-            {
-                weaponModel.UpgradeReload(value);
-            }
-        }
-
-        public void AddShieldEnergy(float value)
-        {
-            _shieldModel.AddMaxEnergy(value);
-        }
-
-        public void RecoverShield()
-        {
-            _shieldModel.Recover();
-        }
-
-        public void UpgradeShieldRecoverySpeed(float modifier)
-        {
-            _shieldModel.AddRecoverySpeed(modifier);
-        }
-
+        
         public void Fire()
         {
             foreach (WeaponModel weaponModel in _weaponModels.Values)
@@ -133,11 +100,42 @@ namespace Model
             }
         }
         
+        public void StopFire()
+        {
+            foreach (var weapon in _weaponModels.Values)
+            {
+                weapon.StopFire();
+            }
+        }
+        
+        public float GetEffect(BuffEffect effect)
+        {
+            return _allEffects[effect];
+        }
+
+        private Dictionary<BuffEffect, float> CreateEmptyEffects()
+        {
+            var effects = Enum.GetValues(typeof(BuffEffect));
+            var result  = new Dictionary<BuffEffect, float>(effects.Length);
+            foreach (var effect in effects)
+            {
+                result.Add((BuffEffect)effect, 0);
+            }
+
+            return result;
+        }
+
+        private void OnShieldEnergyChanged()
+        {
+            OnStatsChange?.Invoke(this);
+        }
+
         private void SetHealth(float value)
         {
-            _health = Mathf.Clamp(value, 0, _maxHealth);
+            float effect = GetEffect(BuffEffect.Health);
+            _health = Mathf.Clamp(value - effect, -effect, _maxHealth);
             
-            if (_health == 0)
+            if (Health == 0)
             {
                 Die();
             }
@@ -153,97 +151,159 @@ namespace Model
             OnDie?.Invoke(this);
         }
 
-        public void StopFire()
-        {
-            foreach (var weapon in _weaponModels.Values)
-            {
-                weapon.StopFire();
-            }
-        }
-
         public void SetShieldCollider(bool value)
         {
             _shieldModel.SetShieldCollider(value);
         }
-
-        public void ConnectSlot(WeaponData weaponData, int index)
+        
+        public void ConnectSlot(ModuleData moduleData, int index)
         {
-            if (weaponData == null && _weaponModels.ContainsKey(index) == false)
+            bool moduleExist = _moduleModels.ContainsKey(index);
+
+            if (moduleExist)
             {
-                return;
+                _moduleModels[index].Disconnect();
+                _moduleModels.Remove(index);
+                _view.moduleSlots[index].DisposeModule();
             }
             
-            if (weaponData == null && _weaponModels.ContainsKey(index))
+            if (moduleData == null)
             {
-                _weaponModels.Remove(index);
-                Object.Destroy(_view.weaponSlots[index].weaponView.gameObject);
                 OnStatsChange?.Invoke(this);
                 return;
             }
 
-            if (_weaponModels.ContainsKey(index))
+            var slot = _view.moduleSlots[index];
+            var module = _gameData.GetPrefab<ModuleView>(moduleData.id);
+            var moduleView = Object.Instantiate(module, slot.spawnModuleAnchor, true);
+            var transform = moduleView.transform;
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+            slot.moduleView = moduleView;
+
+            ModuleModel moduleModel = new ModuleModel(moduleView, moduleData, this, index);
+            moduleModel.Connect();
+            _moduleModels.Add(index, moduleModel);
+            OnStatsChange?.Invoke(this);
+        }
+
+        public void ConnectSlot(WeaponData weaponData, int index)
+        {
+            bool weaponExist = _weaponModels.ContainsKey(index);
+
+            if (weaponExist)
             {
-                Object.Destroy(_view.weaponSlots[index].weaponView.gameObject);
+                _view.weaponSlots[index].DisposeWeapon();
+                _weaponModels.Remove(index);
+            }
+
+            if (weaponData == null)
+            {
+                OnStatsChange?.Invoke(this);
+                return;
             }
             
             WeaponSlotView slot = _view.weaponSlots[index];
             WeaponView weaponView = _gameData.GetPrefab<WeaponView>(weaponData.id);
             var newWeapon = Object.Instantiate(weaponView, slot.spawnWeaponAnchor, true);
             newWeapon.bulletView = _gameData.GetPrefab<BulletView>(weaponData.bulletId);
-            newWeapon.transform.localPosition = Vector3.zero;
-            newWeapon.transform.localRotation = Quaternion.identity;
+            var transform = newWeapon.transform;
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
             slot.weaponView = newWeapon;
             slot.weaponView.gameObject.SetActive(true);
+            var newModel = new WeaponModel(newWeapon, weaponData, this);
+            _weaponModels.Add(index, newModel);
 
-            var newModel = new WeaponModel(newWeapon, weaponData, _player);
-
-            if (_weaponModels.ContainsKey(index) == false)
-            {
-                _weaponModels.Add(index, newModel);
-            }
-
-            _weaponModels[index] = newModel;
             OnStatsChange?.Invoke(this);
         }
 
-        public void ConnectSlot(ModuleData moduleData, int index)
+        public void AddModuleEffect(int slotIndex, List<Tuple<BuffEffect, float>> buffEffect)
         {
-            if (moduleData == null && _moduleModels.ContainsKey(index) == false)
+            if (_modulesEffects.ContainsKey(slotIndex) == false)
             {
-                return;
+                _modulesEffects.Add(slotIndex, buffEffect);
             }
-            
-            if (moduleData == null && _moduleModels.ContainsKey(index))
+            else
             {
-                _moduleModels[index].Disconnect(this);
-                _moduleModels.Remove(index);
-                Object.Destroy(_view.moduleSlots[index].moduleView.gameObject);
-                OnStatsChange?.Invoke(this);
-                return;
+                _modulesEffects[slotIndex] = buffEffect;
             }
-            
-            if (_moduleModels.ContainsKey(index))
-            {
-                Object.Destroy(_view.moduleSlots[index].moduleView.gameObject);
-            }
-            
-            var slot = _view.moduleSlots[index];
-            var module = _gameData.GetPrefab<ModuleView>(moduleData.id);
-            var moduleView = Object.Instantiate(module, slot.spawnModuleAnchor, true);
-            moduleView.transform.localPosition = Vector3.zero;
-            moduleView.transform.localRotation = Quaternion.identity;
-            slot.moduleView = moduleView;
 
-            if (_moduleModels.ContainsKey(index))
+            UpdateEffects();
+        }
+        
+        public void RemoveModuleEffect(int slotIndex)
+        {
+            if (_modulesEffects.ContainsKey(slotIndex) == false)
             {
-                _moduleModels[index].Disconnect(this);
-                _moduleModels.Remove(index);
+                return;
+            }
+
+            _modulesEffects.Remove(slotIndex);
+            UpdateEffects();
+        }
+
+        private void UpdateEffects()
+        {
+            _allEffects = CreateEmptyEffects();
+            foreach (List<Tuple<BuffEffect, float>> effects in _modulesEffects.Values)
+            {
+                foreach (Tuple<BuffEffect, float> effect in effects)
+                {
+                    _allEffects[effect.Item1] += effect.Item2;
+                }
+            }
+        }
+
+        private (bool, string) Validate(UnitData unitData)
+        {
+            if (_gameData.HasPrefab<UnitView>(unitData.id) == false)
+            {
+                return (false , $"Unit prefab {unitData.id} not found");
+            }
+
+            foreach (WeaponData weapon in unitData.weapons)
+            {
+                if (weapon == null)
+                {
+                    continue;
+                }
+                
+                if (_gameData.HasPrefab<WeaponView>(weapon.id) == false)
+                {
+                    return (false , $"Weapon prefab {weapon.id} not found");
+                }
+                
+                if (_gameData.HasPrefab<BulletView>(weapon.bulletId) == false)
+                {
+                    return (false , $"Weapon {weapon.id} has no bullet {weapon.bulletId} prefab");
+                }
             }
             
-            ModuleModel moduleModel = new ModuleModel(moduleView, moduleData);
-            moduleModel.Connect(this);
-            _moduleModels.Add(index, moduleModel);
-            OnStatsChange?.Invoke(this);
+            foreach (ModuleData module in unitData.modules)
+            {
+                if (module == null)
+                {
+                    continue;
+                }
+                
+                if (_gameData.HasPrefab<ModuleView>(module.id) == false)
+                {
+                    return (false , $"Module prefab {module.id} not found");
+                }
+            }
+
+            if (_gameData.GetPrefab<UnitView>(unitData.id).weaponSlots.Count < unitData.weapons.Length)
+            {
+                return (false , $"Unit weapon slots less weapons in unit data");
+            }
+            
+            if (_gameData.GetPrefab<UnitView>(unitData.id).moduleSlots.Count < unitData.modules.Length)
+            {
+                return (false , $"Unit modules slots less weapons in unit data");
+            }
+
+            return (true, string.Empty);
         }
     }
 }

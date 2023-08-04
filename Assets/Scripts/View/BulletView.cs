@@ -5,7 +5,6 @@ namespace View
     public class BulletView : GameObjectView
     {
         public Rigidbody body;
-        public SphereCollider sphereCollider;
         public int damage;
 
         private void Awake()

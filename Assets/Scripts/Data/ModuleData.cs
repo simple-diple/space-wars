@@ -12,28 +12,14 @@ namespace Data
         public string moduleName;
         public BuffData[] buffs;
 
-        public void Connect(UnitModel unitModel)
-        {
-            foreach (BuffData buff in buffs)
-            {
-                buff.Connect(unitModel);
-            }
-        }
-        
-        public void Disconnect(UnitModel unitModel)
-        {
-            foreach (BuffData buff in buffs)
-            {
-                buff.Disconnect(unitModel);
-            }
-        }
-
         public override string ToString()
         {
             string effects = string.Empty;
             foreach (BuffData buffData in buffs)
             {
-                effects += string.Format(buffData.buffName, buffData.value + " ");
+                string value = buffData.value > 0 ? "+" : "";
+                value += buffData.value % 1 == 0 ? buffData.value.ToString() : (buffData.value * 100).ToString() + "%";
+                effects += string.Format(buffData.buffName, value + " ");
             }
 
             return $"{moduleName} ({effects})";

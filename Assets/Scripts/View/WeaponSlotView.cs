@@ -15,5 +15,10 @@ namespace View
         {
             UISetSlot.WeaponSlotClick(this);
         }
+
+        public void DisposeWeapon()
+        {
+            Destroy(weaponView.gameObject);
+        }
     }
 }

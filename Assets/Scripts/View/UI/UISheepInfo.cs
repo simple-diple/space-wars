@@ -26,12 +26,12 @@ namespace View.UI
 
             foreach (var weapon in unitModel.Weapons)
             {
-                weaponStr += $"{weapon}\n";
+                weaponStr += $"{weapon.Value}\n";
             }
             
             foreach (var module in unitModel.Modules)
             {
-                moduleStr += $"{module}\n";
+                moduleStr += $"{module.Value}\n";
             }
 
             statsText.text = $"Shield Recovery: {unitModel.ShieldRecovery.ToString()}\n" +

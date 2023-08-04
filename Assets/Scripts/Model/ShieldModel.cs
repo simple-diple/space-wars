@@ -10,19 +10,20 @@ namespace Model
     {
         public float Energy
         {
-            get => _energy;
+            get => _energy + _unitModel.GetEffect(BuffEffect.ShieldEnergy);
             set => SetEnergy(value);
         }
 
-        public float Recovery => _recoveryAmount;
+        public float Recovery => _recoveryAmount * (1 + _unitModel.GetEffect(BuffEffect.ShieldRecovery));
+        private float MaxEnergy => _maxEnergy + _unitModel.GetEffect(BuffEffect.ShieldEnergy);
 
         public event Action OnEnergyChanged;
 
         private readonly ShieldView _view;
-        private float _maxEnergy;
+        private readonly float _maxEnergy;
         private float _energy;
-        private float _recoverySpeed;
-        private float _recoveryAmount;
+        private readonly float _recoverySpeed;
+        private readonly float _recoveryAmount;
         private readonly UnitModel _unitModel;
         
         public ShieldModel(UnitModel unitModel, ShieldView view, ShieldData data)
@@ -37,27 +38,16 @@ namespace Model
             _view.StartCoroutine(RecoveryShield());
         }
 
-        public void AddMaxEnergy(float value)
-        {
-            _maxEnergy += (int)value;
-            Energy += (int)value;
-        }
-
-        public void AddRecoverySpeed(float modifier)
-        {
-            _recoveryAmount *= 1 + modifier;
-        }
-        
         private void SetEnergy(float value)
         {
-            if (value  >= _maxEnergy)
+            if (value >= MaxEnergy)
             {
                 _energy = _maxEnergy;
                 OnEnergyChanged?.Invoke();
                 return;
             }
             
-            if (_energy <= value)
+            if (Energy <= value)
             {
                 _view.ShowRecoveryEffect();
             }
@@ -66,8 +56,9 @@ namespace Model
                 _view.ShowDamageEffect();
             }
 
-            _energy = Mathf.Clamp(value, 0, _maxEnergy);
-            _view.SetActive(_energy > 0);
+            float effect = _unitModel.GetEffect(BuffEffect.ShieldEnergy);
+            _energy = Mathf.Clamp(value - effect, -effect, _maxEnergy);
+            _view.SetActive(Energy > 0);
             OnEnergyChanged?.Invoke();
         }
 
@@ -78,15 +69,10 @@ namespace Model
             while (_unitModel.IsAlive)
             {
                 yield return new WaitForSeconds(_recoverySpeed);
-                Energy += _recoveryAmount;
+                Energy += Recovery;
             }
         }
-
-        public void Recover()
-        {
-            Energy = _maxEnergy;
-        }
-
+        
         public void SetShieldCollider(bool value)
         {
             _view.SetCollider(value);

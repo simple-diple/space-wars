@@ -10,6 +10,7 @@ namespace View
         public void Fire(float force, int player, int damage)
         {
             var bullet = Instantiate(bulletView, spawnBulletAnchor);
+            bullet.damage = damage;
             bullet.body.AddForce(transform.forward * force, ForceMode.Force);
             bullet.body.gameObject.layer = LayerMask.NameToLayer("Player" + player);
         }

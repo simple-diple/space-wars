@@ -15,4 +15,4 @@ MonoBehaviour:
   id: ModuleD
   moduleName: Module D
   buffs:
-  - {fileID: 11400000, guid: 3973ae03e05584feb8d9a62b4b81d6f1, type: 2}
+  - {fileID: 11400000, guid: 1828bbe4681424927a64edf8834fbeab, type: 2}

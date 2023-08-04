@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 417c825d9c294a6f9a6db591a2d57088, type: 3}
-  m_Name: HealthBuff
+  m_Script: {fileID: 11500000, guid: cc6e91cc6dc941c7918b4ecd788b8697, type: 3}
+  m_Name: ReloadTime
   m_EditorClassIdentifier: 
-  buffName: '{0} Health'
-  value: 50
+  buffName: '{0} Reload'
+  buffEffect: 3
+  value: -0.2

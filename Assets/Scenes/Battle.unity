@@ -745,7 +745,7 @@ GameObject:
   m_Component:
   - component: {fileID: 548444926}
   m_Layer: 0
-  m_Name: Ship2
+  m_Name: SpawnB
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -963,7 +963,7 @@ GameObject:
   - component: {fileID: 657600747}
   - component: {fileID: 657600746}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: GameMessage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -982,12 +982,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1722607595}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 16.97179}
-  m_SizeDelta: {x: 200, y: 83.9436}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -54}
+  m_SizeDelta: {x: 600, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &657600746
 MonoBehaviour:
@@ -1914,7 +1914,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1180420683}
   m_Layer: 0
-  m_Name: Ship1
+  m_Name: SpawnA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2342,7 +2342,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4431931759671445056, guid: 463cc83af28dc4bdd876a0f95e79ac4e, type: 3}
       propertyPath: m_Name
-      value: SheepInfo (1)
+      value: SheepB
       objectReference: {fileID: 0}
     - target: {fileID: 4431931759671445063, guid: 463cc83af28dc4bdd876a0f95e79ac4e, type: 3}
       propertyPath: m_Pivot.x
@@ -2354,7 +2354,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4431931759671445063, guid: 463cc83af28dc4bdd876a0f95e79ac4e, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4431931759671445063, guid: 463cc83af28dc4bdd876a0f95e79ac4e, type: 3}
       propertyPath: m_AnchorMax.x
@@ -2594,7 +2594,7 @@ RectTransform:
   m_Children:
   - {fileID: 320737362}
   m_Father: {fileID: 1722607595}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2776,9 +2776,9 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1949371188}
+  - {fileID: 745825240}
   - {fileID: 657600745}
   - {fileID: 1674707762}
-  - {fileID: 745825240}
   - {fileID: 1854853638}
   - {fileID: 861411406}
   m_Father: {fileID: 0}
@@ -3360,12 +3360,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameData: {fileID: 11400000, guid: 938ccd74da7ba48518693d63ab7c2296, type: 2}
-  sheep1SpawnPoint: {fileID: 1180420683}
-  sheep2SpawnPoint: {fileID: 548444926}
-  ship1: {fileID: 11400000, guid: a961b75ec9e614025950cb0969e02a0e, type: 2}
-  ship2: {fileID: 11400000, guid: e25b44cfe0274494dafee82e87a2b6d7, type: 2}
-  uiShip1: {fileID: 1949371191}
-  uiShip2: {fileID: 745825241}
+  spawnUnitsData:
+  - unitData: {fileID: 11400000, guid: a961b75ec9e614025950cb0969e02a0e, type: 2}
+    spawnPoint: {fileID: 1180420683}
+    ui: {fileID: 1949371191}
+  - unitData: {fileID: 11400000, guid: e25b44cfe0274494dafee82e87a2b6d7, type: 2}
+    spawnPoint: {fileID: 548444926}
+    ui: {fileID: 745825241}
   uiText: {fileID: 657600746}
   uiStartBattle: {fileID: 1674707763}
 --- !u!4 &2052107602
@@ -3398,7 +3399,7 @@ MonoBehaviour:
   cam: {fileID: 963194227}
   weaponsDropDown: {fileID: 1854853639}
   modulesDropDown: {fileID: 861411407}
-  gameView: {fileID: 2052107601}
+  gameController: {fileID: 2052107601}
 --- !u!1 &2079937683
 GameObject:
   m_ObjectHideFlags: 0
@@ -3543,7 +3544,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4431931759671445056, guid: 463cc83af28dc4bdd876a0f95e79ac4e, type: 3}
       propertyPath: m_Name
-      value: SheepInfo
+      value: SheepA
       objectReference: {fileID: 0}
     - target: {fileID: 4431931759671445063, guid: 463cc83af28dc4bdd876a0f95e79ac4e, type: 3}
       propertyPath: m_Pivot.x
