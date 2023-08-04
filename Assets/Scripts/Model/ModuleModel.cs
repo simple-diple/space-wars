@@ -5,15 +5,15 @@ using View;
 
 namespace Model
 {
-    public class ModuleModel
+    public class ModuleModel : IModule
     {
         private ModuleView _view;
         private readonly ModuleData _data;
-        private readonly UnitModel _unitModel;
+        private readonly IUnit _unitModel;
         private readonly int _slotIndex;
         private readonly string _toString;
 
-        public ModuleModel(ModuleView view, ModuleData data, UnitModel unitModel, int slotIndex)
+        public ModuleModel(ModuleView view, ModuleData data, IUnit unitModel, int slotIndex)
         {
             _view = view;
             _data = data;

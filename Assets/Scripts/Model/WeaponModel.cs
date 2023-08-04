@@ -5,7 +5,7 @@ using View;
 
 namespace Model
 {
-    public class WeaponModel
+    public class WeaponModel : IWeapon
     {
         private float ReloadTime => _reloadTime * (1 + _unitModel.GetEffect(BuffEffect.ReloadTime));
         private readonly WeaponView _view;
@@ -25,6 +25,18 @@ namespace Model
             _unitModel = unitModel;
             _name = data.weaponName;
             _damage = data.damage;
+        }
+
+        public void Fire(bool value)
+        {
+            if (value)
+            {
+                Fire();
+            }
+            else
+            {
+                StopFire();
+            }
         }
 
         public void Fire()

@@ -9,13 +9,13 @@ namespace View.UI
         public TMP_Text hpText;
         public TMP_Text statsText;
 
-        public void Connect(UnitModel unitModel)
+        public void Connect(IUnit unitModel)
         {
             unitModel.OnStatsChange += OnStatsChanged;
             OnStatsChanged(unitModel);
         }
 
-        private void OnStatsChanged(UnitModel unitModel)
+        private void OnStatsChanged(IUnit unitModel)
         {
             hpText.text =
                 $"Shield: {unitModel.ShieldEnergy.ToString()}\n" +

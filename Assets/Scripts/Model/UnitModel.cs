@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace Model
 {
-    public class UnitModel
+    public class UnitModel : IUnit
     {
         public int Player { get; }
 
@@ -19,13 +19,13 @@ namespace Model
             private set => SetHealth(value);
         }
         public bool IsAlive => Health > 0;
-        public Dictionary<int, WeaponModel> Weapons => _weaponModels;
-        public Dictionary<int, ModuleModel> Modules => _moduleModels;
+        public Dictionary<int, IWeapon> Weapons => _weaponModels;
+        public Dictionary<int, IModule> Modules => _moduleModels;
 
         private readonly UnitView _view;
         private float _health;
-        private readonly Dictionary<int, WeaponModel> _weaponModels;
-        private readonly Dictionary<int, ModuleModel> _moduleModels;
+        private readonly Dictionary<int, IWeapon> _weaponModels;
+        private readonly Dictionary<int, IModule> _moduleModels;
         private readonly ShieldModel _shieldModel;
         private readonly float _maxHealth;
         private readonly GameData _gameData;
@@ -33,7 +33,7 @@ namespace Model
         private Dictionary<BuffEffect, float> _allEffects;
 
         public event Action<UnitModel> OnDie;
-        public event Action<UnitModel> OnStatsChange;
+        public event Action<IUnit> OnStatsChange;
 
         public UnitModel(UnitData unitData, Transform spawnPoint, int player, GameData gameData)
         {
@@ -56,8 +56,8 @@ namespace Model
             Player = player;
             _shieldModel = new ShieldModel(this, _view.shieldView, unitData.shield);
             _shieldModel.OnEnergyChanged += OnShieldEnergyChanged;
-            _weaponModels = new Dictionary<int, WeaponModel>(unitData.weapons.Length);
-            _moduleModels = new Dictionary<int, ModuleModel>(unitData.modules.Length);
+            _weaponModels = new Dictionary<int, IWeapon>(unitData.weapons.Length);
+            _moduleModels = new Dictionary<int, IModule>(unitData.modules.Length);
             _modulesEffects = new Dictionary<int, List<Tuple<BuffEffect, float>>>(unitData.modules.Length);
             _allEffects = CreateEmptyEffects();
 
@@ -94,9 +94,9 @@ namespace Model
         
         public void Fire()
         {
-            foreach (WeaponModel weaponModel in _weaponModels.Values)
+            foreach (var weaponModel in _weaponModels.Values)
             {
-                weaponModel.Fire();
+                weaponModel.Fire(true);
             }
         }
         
@@ -104,7 +104,7 @@ namespace Model
         {
             foreach (var weapon in _weaponModels.Values)
             {
-                weapon.StopFire();
+                weapon.Fire(false);
             }
         }
         
